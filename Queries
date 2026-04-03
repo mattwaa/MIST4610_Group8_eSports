@@ -36,10 +36,13 @@ JOIN TournamentSponsor ON Sponsors.sponsorID = TournamentSponsor.sponsorID
 ORDER BY sponsorAmount DESC
 
 Query #5:
-SELECT Players.playerFirstName AS "First name", Players.playerLastName AS "Last Name", Teams.teamName AS "Team Name", Teams.city AS "City"
-FROM Players
-JOIN Teams ON Players.teamID = Teams.teamID
-order by Players.playerLastName
+select teamName, sum(amount) As "Total Prize Pool"
+from Teams
+join Teams_in_Tournaments on Teams.teamID= Teams_in_Tournaments.teamID
+join Tournament on Tournament.tournamentID= Teams_in_Tournaments.tournamentID
+join PrizePool on PrizePool.Tournament_tournamentID= Tournament.tournamentID
+where Teams.wins > (SELECT AVG(wins) FROM Teams)
+group by TeamName;
 
 Query #6:
 BEGIN
