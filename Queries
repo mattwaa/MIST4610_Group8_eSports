@@ -1,0 +1,77 @@
+Query #1: 
+SELECT teamName,
+    COUNT(CASE WHEN outcome = 'win' THEN 1 END) AS Wins,
+    COUNT(CASE WHEN outcome = 'loss' THEN 1 END) AS Losses,
+    COUNT(CASE WHEN outcome = 'draw' THEN 1 END) AS Draws
+FROM Teams
+JOIN Teams_In_Matches ON Teams.teamID = Teams_In_Matches.teamID
+GROUP BY teamName
+ORDER BY Wins DESC, Losses
+
+Query #2:
+SELECT playerFirstName, playerLastName, yearOfExperience, teamName, Teams.teamID
+FROM Players AS p1
+JOIN Teams ON Teams.teamID = p1.teamID
+WHERE p1.yearOfExperience > (
+    SELECT AVG(p2.yearOfExperience)
+    FROM Players AS p2
+    WHERE p2.teamID = p1.teamID
+)
+
+Query #3:
+SELECT Venues.venueID, venueName, venueCity
+FROM Venues
+LEFT JOIN TournamentVenues ON Venues.venueID = TournamentVenues.venueID
+WHERE NOT EXISTS (SELECT * FROM TournamentVenues WHERE Venues.venueID = TournamentVenues.venueID)
+
+Query #4:
+SELECT Sponsors.sponsorID, sponsorAmount, CASE
+											WHEN sponsorAmount >= 1000000 THEN 'Platinum'
+											WHEN sponsorAmount >= 500000 THEN 'Gold'
+											WHEN sponsorAmount >= 300000 THEN 'Silver'
+											ELSE 'Bronze'
+										END AS sponsorTier
+FROM Sponsors
+JOIN TournamentSponsor ON Sponsors.sponsorID = TournamentSponsor.sponsorID
+ORDER BY sponsorAmount DESC
+
+Query #5:
+SELECT Players.playerFirstName AS "First name", Players.playerLastName AS "Last Name", Teams.teamName AS "Team Name", Teams.city AS "City"
+FROM Players
+JOIN Teams ON Players.teamID = Teams.teamID
+order by Players.playerLastName
+
+Query #6:
+BEGIN
+SELECT teamName,sponsorROI
+from Sponsors
+join TeamSponsors on TeamSponsors.sponsorID= Sponsors.sponsorID
+join Teams on Teams.teamID= TeamSponsors.teamID
+where sponsorROI>1.5;
+END
+
+Query #7:
+SELECT playerFirstName AS "First Name", playerLastName AS "Last Name"
+FROM Players
+WHERE teamID IN (SELECT teamID FROM Teams WHERE wins > 10)
+
+Query #8:
+SELECT Players.playerFirstName AS "First name", Players.playerLastName AS "Last Name", Teams.teamName AS "Team Name", Teams.city AS "City"
+FROM Players
+JOIN Teams ON Players.teamID = Teams.teamID
+order by Players.playerLastName
+
+Query #9:
+SELECT Teams.teamID, teamName, city
+FROM Teams
+WHERE EXISTS (
+    SELECT *
+    FROM Venues
+    WHERE Venues.venueCity = Teams.city
+)
+
+Query #10:
+SELECT Matches.matchID, Matches.matchGame, Season.name AS seasonName, Season.year, Stages.stageName
+FROM Matches
+JOIN Season ON Matches.seasonID = Season.seasonID
+JOIN Stages ON Matches.stageID = Stages.stageID
